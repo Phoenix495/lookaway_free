@@ -10,8 +10,10 @@ import SwiftUI
 @main
 struct LookAwayFreeApp: App {
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra("LookAwayFree", systemImage: "eye") {
+            Text("Hello, menu bar")
+            Divider()
+            Button("Quit") { NSApp.terminate(nil) }
         }
     }
 }
