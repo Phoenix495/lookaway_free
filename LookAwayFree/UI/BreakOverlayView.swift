@@ -9,7 +9,9 @@ struct BreakOverlayView: View {
     let message: String
     @State private var skipEnabled = false
 
-    private static let skipDelay: Duration = .seconds(5)
+    /// Shared delay before skip is allowed. Used by both the visual fade-in
+    /// here and the ESC handler in `BreakOverlayCoordinator`.
+    static let skipDelay: TimeInterval = 1
 
     var body: some View {
         ZStack {
@@ -35,7 +37,9 @@ struct BreakOverlayView: View {
 
                 HStack(spacing: 10) {
                     // Skip · esc — ghost button, always visible; disabled until
-                    // the skip-delay elapses. Esc triggers it (no-op when disabled).
+                    // the skip-delay elapses. ESC handling lives in
+                    // `BreakOverlayCoordinator` so the keypress works reliably
+                    // across the borderless overlay window.
                     Button { engine.skipBreak() } label: {
                         Text("Skip · esc")
                             .font(LAFont.bodyXS.weight(.medium))
@@ -48,7 +52,6 @@ struct BreakOverlayView: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .keyboardShortcut(.escape)
                     .disabled(!skipEnabled)
                     .animation(.easeIn(duration: 0.3), value: skipEnabled)
 
@@ -70,7 +73,7 @@ struct BreakOverlayView: View {
             .padding(.horizontal, 40)
         }
         .task {
-            try? await Task.sleep(for: Self.skipDelay)
+            try? await Task.sleep(for: .seconds(Self.skipDelay))
             skipEnabled = true
         }
     }
